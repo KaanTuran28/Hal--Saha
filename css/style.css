@@ -1,5 +1,5 @@
 /* ============================================================
-   HALI SAHA SAVAŞ ODASI PRO - KUSURSUZ MOBİL VE EFEKTLER (SON)
+   HALI SAHA SAVAŞ ODASI PRO - TAM EKRAN VE MOBİL UYUMLU (SON)
    ============================================================ */
 :root {
     --bg-dark: #080a10; 
@@ -105,16 +105,12 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
 .box-bottom .penalty-arc { bottom: 100%; border-radius: 500px 500px 0 0; border-bottom: none; border-top: 3px solid var(--pitch-lines); }
 
 /* Nokta Şeklindeki Taktik Slotları */
-.slot { width: 60px; height: 60px; position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
+.slot { width: 60px; height: 60px; position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; cursor: pointer;}
 .slot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; pointer-events: none; border: 2px solid rgba(255,255,255,0.2); }
 .slot-home::after { background-color: rgba(56, 189, 248, 0.3); } .slot-away::after { background-color: rgba(239, 68, 68, 0.3); }
+.slot:hover::after { transform: translate(-50%, -50%) scale(1.3); }
 
-
-/* ============================================================
-   --- SAHADAKİ OYUNCULAR (YUVARLAK VE İSİM ALANI) ---
-   ============================================================ */
-
-/* Sahaya Giren Oyuncu Formu (Dikdörtgen formdan çıkıp yuvarlak ve isme dönüşür) */
+/* --- SAHADAKİ OYUNCU PULLARI --- */
 .slot .player, .pitch > .player.on-pitch-free { 
     width: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; 
     background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important;
@@ -122,22 +118,17 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
     overflow: visible !important; cursor: grab !important; z-index: 5 !important; transition: transform 0.2s !important;
 }
 
-/* KIRMIZI TAKIM (DEPLASMAN) İÇİN İSİMLERİ ÜSTE ALMA */
-.slot .player.away-player, .pitch > .player.on-pitch-free.away-player {
-    flex-direction: column-reverse !important;
-}
-
+/* KIRMIZI TAKIM (DEPLASMAN) İÇİN İSİMLERİ ÜSTE ALMA KODU */
+.slot .player.away-player, .pitch > .player.on-pitch-free.away-player { flex-direction: column-reverse !important; }
 .slot .player:hover, .pitch > .player.on-pitch-free:hover { transform: scale(1.1) !important; }
 .pitch > .player.on-pitch-free { transform: translate(-50%, -50%); position: absolute; }
 .slot .player .delete-btn, .pitch > .player.on-pitch-free .delete-btn { display: none !important; }
 
-/* DAİRELER (Görseli Temsil Eder) */
+/* DAİRELER */
 .slot .player::before, .pitch > .player.on-pitch-free::before { 
     content: '' !important; display: block !important; width: 44px !important; height: 44px !important; 
     border-radius: 50% !important; border: 3px solid white !important; font-family: none !important;
 }
-
-/* YUVARLAKLARA UYGULANAN GÖLGE VE GRADIENT KODLARI */
 .slot .player.home-player::before, .pitch > .player.on-pitch-free.home-player::before { 
     background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%) !important; 
     box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4), 0 0 10px var(--home-glow) !important; 
@@ -155,12 +146,22 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
     box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; display: block !important;
 }
 
+/* ================= MODAL (OYUNCU SEÇME EKRANI) ================= */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(4px); }
+.modal-content { background: var(--panel-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); width: 320px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); animation: modalFadeIn 0.2s ease-out; }
+@keyframes modalFadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-content h3 { font-size: 1.1rem; color: var(--text-main); margin: 0; text-align: center; }
+.modal-content select { padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; outline: none; font-size: 1rem; cursor: pointer; }
+.modal-content select option { background: var(--panel-bg); color: white; }
+.modal-buttons { display: flex; gap: 10px; margin-top: 5px;}
+.modal-buttons button { flex: 1; padding: 12px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; font-size: 0.9rem; transition: all 0.2s; }
+.btn-cancel { background: #475569; color: white; }
+.btn-cancel:hover { background: #334155; }
+.btn-confirm { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; }
+.btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3); }
 
-/* ============================================================
-   MOBİL UYUMLULUK KUSURSUZ (MEDIA QUERIES) 
-   ============================================================ */
+/* ================= MOBİL UYUMLULUK KUSURSUZ (MEDIA QUERIES) ================= */
 @media (max-width: 950px) {
-    /* Mobilde kaydırmayı açar ve taşmaları engeller */
     body { flex-direction: column; overflow-y: auto; overflow-x: hidden; height: 100dvh; }
     
     .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--border-color); padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); flex-shrink: 0; }
@@ -169,23 +170,17 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
     .team-panel { flex: 0 0 280px; padding: 10px; }
     .divider { display: none; }
     
-    /* Sağ taraftaki ana içerik (Saha Alanı) */
-    .main-content { padding: 10px; overflow-y: visible; padding-top: 20px; display: flex; flex-direction: column; height: auto; min-height: 850px; }
+    .main-content { padding: 10px; overflow-y: visible; padding-top: 20px; display: block; height: auto;}
     .main-content::before { filter: blur(15px); }
     
-    /* Mobilde sahanın sıfırlanmasını/kaybolmasını engellemek için kesin yükseklikler */
-    .export-container { padding: 15px; border-radius: 12px; height: 800px; max-width: 100%; width: 100%; display: flex; flex-direction: column; }
-    .pitch-container { flex: 1; min-height: 600px; } /* Sahanın mobilde görünmesini garanti eder */
+    .export-container { padding: 15px; border-radius: 12px; height: 700px; max-width: 100%; width: 100%; }
     .match-header h1 { font-size: 1.1rem; }
 }
 
 @media (max-width: 600px) {
     .teams-container { flex-direction: column; overflow-x: hidden; overflow-y: visible;}
     .team-panel { flex: none; width: 100%; }
-    .export-container { height: 700px; padding: 10px;}
-    .pitch-container { min-height: 500px; padding: 5px; }
-    
-    /* Mobilde oyuncu daireleri ve isimleri biraz küçülür */
+    .export-container { height: 650px; }
     .slot .player::before, .pitch > .player.on-pitch-free::before { width: 36px !important; height: 36px !important; border-width: 2px !important;}
     .slot .player span, .pitch > .player.on-pitch-free span { font-size: 0.55rem !important; padding: 2px 4px !important; max-width: 60px !important; }
 }
