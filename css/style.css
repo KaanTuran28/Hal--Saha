@@ -1,0 +1,191 @@
+/* ============================================================
+   HALI SAHA SAVAŞ ODASI PRO - KUSURSUZ MOBİL VE EFEKTLER (SON)
+   ============================================================ */
+:root {
+    --bg-dark: #080a10; 
+    --panel-bg: rgba(15, 23, 42, 0.95); 
+    --border-color: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --home-color: #38bdf8; 
+    --home-glow: rgba(56, 189, 248, 0.5);
+    --away-color: #ef4444; 
+    --away-glow: rgba(239, 68, 68, 0.5);
+    --pitch-green-dark: #105e26;
+    --pitch-green-light: #167c33;
+    --pitch-lines: rgba(255, 255, 255, 0.8);
+    --goal-net: rgba(226, 232, 240, 0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+body { 
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+    background-color: var(--bg-dark); 
+    color: var(--text-main); 
+    display: flex; height: 100vh; overflow: hidden; 
+    letter-spacing: -0.01em;
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+}
+input, select, button { -webkit-user-select: auto; user-select: auto; font-family: inherit; }
+
+/* --- YAN PANEL (SIDEBAR) --- */
+.sidebar { width: 360px; background-color: var(--panel-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; z-index: 10; box-shadow: 10px 0 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+.brand i { font-size: 1.5rem; color: var(--home-color); text-shadow: 0 0 10px var(--home-glow); }
+.brand h2 { font-size: 1.3rem; font-weight: 800; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.global-controls { margin-bottom: 10px; }
+.mobile-hint { font-size: 0.75rem; color: #fbbf24; margin-top: 8px; text-align: center; display: none; font-weight: bold;}
+
+/* --- TAKIMLAR VE KONTROLLER --- */
+.teams-container { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px; }
+.teams-container::-webkit-scrollbar { width: 5px; }
+.teams-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+.team-panel { background-color: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); transition: border-color 0.3s; }
+.team-panel.home-panel:focus-within { border-color: var(--home-color); box-shadow: 0 0 15px rgba(56, 189, 248, 0.1); }
+.team-panel.away-panel:focus-within { border-color: var(--away-color); box-shadow: 0 0 15px rgba(239, 68, 68, 0.1); }
+.team-panel h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.home-panel h3 { color: var(--home-color); text-shadow: 0 0 10px var(--home-glow); }
+.away-panel h3 { color: var(--away-color); text-shadow: 0 0 10px var(--away-glow); }
+.divider { text-align: center; font-weight: 900; color: var(--border-color); font-size: 0.8rem; margin: 5px 0; letter-spacing: 3px; }
+
+.input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+input, select { padding: 10px 12px; background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; transition: all 0.2s; }
+input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-color: rgba(0,0,0,0.4); }
+
+.add-player-group { flex-direction: row; }
+.add-player-group input { flex: 1; border-radius: 8px 0 0 8px; }
+.add-player-group button { background-color: var(--border-color); color: white; border: none; padding: 0 18px; border-radius: 0 8px 8px 0; cursor: pointer; transition: background 0.2s; }
+.add-player-group button:hover { background-color: #475569; }
+.btn-primary { width: 100%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3); transition: all 0.2s; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4); }
+
+/* --- OYUNCU HAVUZU (YEDEK KULÜBESİ) --- */
+.player-pool { min-height: 90px; max-height: 160px; background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+
+/* Kulübedeki oyuncular yatay dikdörtgen kalsın */
+.player-pool .player { padding: 8px 12px; border-radius: 6px; cursor: grab; font-size: 0.9rem; font-weight: 600; display: flex; flex-direction: row !important; align-items: center; gap: 10px; border: 1px solid #2a3441; color: white; background-color: #111827; position: relative; touch-action: none; }
+.player-pool .player::before { font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 1rem; }
+.player-pool .player.home-player { border-left: 3px solid var(--home-color); } 
+.player-pool .player.home-player::before { content: '\f553'; color: var(--home-color); } 
+.player-pool .player.away-player { border-left: 3px solid var(--away-color); } 
+.player-pool .player.away-player::before { content: '\f553'; color: var(--away-color); }
+.player-pool .player .delete-btn { margin-left: auto; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; padding: 2px 6px; transition: color 0.2s; }
+.player-pool .player .delete-btn:hover { color: #ef4444; }
+
+/* --- ANA İÇERİK VE TAM EKRAN SAHA --- */
+.main-content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden; }
+.main-content::before { content: ''; position: absolute; top: -50px; left: -50px; right: -50px; bottom: -50px; background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.15) 0%, transparent 40%), linear-gradient(to bottom, #0f172a, #080a10); filter: blur(20px); z-index: 1; }
+
+.export-container { position: relative; z-index: 2; width: 100%; height: 100%; max-width: 1400px; background-color: var(--panel-bg); padding: 15px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); border: 1px solid var(--border-color); display: flex; flex-direction: column; backdrop-filter: blur(5px); }
+
+.match-header { flex-shrink: 0; width: 100%; display: flex; align-items: center; margin-bottom: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--border-color); }
+.header-team { flex: 1; text-align: center; }
+.header-team h1 { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; }
+.header-team.home { color: var(--home-color); } .header-team.away { color: var(--away-color); }
+.header-team p { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.vs-label { font-weight: 900; color: var(--text-muted); padding: 0 20px; font-size: 1rem; }
+
+.pitch-container { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 10px; background: #0b0e14; border-radius: 8px; box-shadow: inset 0 0 30px rgba(0,0,0,0.7); border: 1px solid #2a3441; }
+.pitch { width: 100%; height: 100%; background-color: var(--pitch-green-dark); background-image: repeating-linear-gradient(0deg, var(--pitch-green-dark), var(--pitch-green-dark) 40px, var(--pitch-green-light) 40px, var(--pitch-green-light) 80px); border: 4px solid var(--pitch-lines); position: relative; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
+
+/* Saha Çizgileri */
+.goal { position: absolute; left: 50%; transform: translateX(-50%); width: 30%; height: 20px; background-color: #fff; border: 3px solid #b7babf; z-index: 1; }
+.goal-top { top: -4px; border-bottom: none; border-radius: 4px 4px 0 0; }
+.goal-bottom { bottom: -4px; border-top: none; border-radius: 0 0 4px 4px; }
+.pitch-lines * { position: absolute; border: 2px solid var(--pitch-lines); box-sizing: border-box; }
+.center-line { top: 50%; left: 0; width: 100%; height: 0; transform: translateY(-50%); border: none; border-top: 3px solid var(--pitch-lines); }
+.center-circle { top: 50%; left: 50%; width: 22%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); border-width: 3px; }
+.center-spot { top: 50%; left: 50%; width: 8px; height: 8px; background: var(--pitch-lines); border-radius: 50%; transform: translate(-50%, -50%); border: none; }
+.box-top, .box-bottom { left: 50%; transform: translateX(-50%); width: 55%; height: 18%; border-width: 3px; }
+.box-top { top: 0; border-top: none; border-radius: 0 0 8px 8px; }
+.box-bottom { bottom: 0; border-bottom: none; border-radius: 8px 8px 0 0; }
+.penalty-arc { width: 40%; height: 30%; border-radius: 0 0 500px 500px; left: 50%; transform: translateX(-50%); border-top: none; border-width: 3px; }
+.box-top .penalty-arc { top: 100%; }
+.box-bottom .penalty-arc { bottom: 100%; border-radius: 500px 500px 0 0; border-bottom: none; border-top: 3px solid var(--pitch-lines); }
+
+/* Nokta Şeklindeki Taktik Slotları */
+.slot { width: 60px; height: 60px; position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
+.slot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; pointer-events: none; border: 2px solid rgba(255,255,255,0.2); }
+.slot-home::after { background-color: rgba(56, 189, 248, 0.3); } .slot-away::after { background-color: rgba(239, 68, 68, 0.3); }
+
+
+/* ============================================================
+   --- SAHADAKİ OYUNCULAR (YUVARLAK VE İSİM ALANI) ---
+   ============================================================ */
+
+/* Sahaya Giren Oyuncu Formu (Dikdörtgen formdan çıkıp yuvarlak ve isme dönüşür) */
+.slot .player, .pitch > .player.on-pitch-free { 
+    width: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; 
+    background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important;
+    display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 4px !important;
+    overflow: visible !important; cursor: grab !important; z-index: 5 !important; transition: transform 0.2s !important;
+}
+
+/* KIRMIZI TAKIM (DEPLASMAN) İÇİN İSİMLERİ ÜSTE ALMA */
+.slot .player.away-player, .pitch > .player.on-pitch-free.away-player {
+    flex-direction: column-reverse !important;
+}
+
+.slot .player:hover, .pitch > .player.on-pitch-free:hover { transform: scale(1.1) !important; }
+.pitch > .player.on-pitch-free { transform: translate(-50%, -50%); position: absolute; }
+.slot .player .delete-btn, .pitch > .player.on-pitch-free .delete-btn { display: none !important; }
+
+/* DAİRELER (Görseli Temsil Eder) */
+.slot .player::before, .pitch > .player.on-pitch-free::before { 
+    content: '' !important; display: block !important; width: 44px !important; height: 44px !important; 
+    border-radius: 50% !important; border: 3px solid white !important; font-family: none !important;
+}
+
+/* YUVARLAKLARA UYGULANAN GÖLGE VE GRADIENT KODLARI */
+.slot .player.home-player::before, .pitch > .player.on-pitch-free.home-player::before { 
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%) !important; 
+    box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4), 0 0 10px var(--home-glow) !important; 
+}
+.slot .player.away-player::before, .pitch > .player.on-pitch-free.away-player::before { 
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important; 
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4), 0 0 10px var(--away-glow) !important; 
+}
+
+/* İSİM ETİKETLERİ */
+.slot .player span, .pitch > .player.on-pitch-free span {
+    font-size: 0.65rem !important; font-weight: 800 !important; color: white !important; text-transform: uppercase !important;
+    background: rgba(0, 0, 0, 0.75) !important; padding: 3px 6px !important; border-radius: 4px !important; border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    white-space: nowrap !important; max-width: 80px !important; overflow: hidden !important; text-overflow: ellipsis !important; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; display: block !important;
+}
+
+
+/* ============================================================
+   MOBİL UYUMLULUK KUSURSUZ (MEDIA QUERIES) 
+   ============================================================ */
+@media (max-width: 950px) {
+    /* Mobilde kaydırmayı açar ve taşmaları engeller */
+    body { flex-direction: column; overflow-y: auto; overflow-x: hidden; height: 100dvh; }
+    
+    .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--border-color); padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); flex-shrink: 0; }
+    .mobile-hint { display: block; } 
+    .teams-container { flex-direction: row; gap: 10px; overflow-y: hidden; overflow-x: auto; padding-bottom: 5px;}
+    .team-panel { flex: 0 0 280px; padding: 10px; }
+    .divider { display: none; }
+    
+    /* Sağ taraftaki ana içerik (Saha Alanı) */
+    .main-content { padding: 10px; overflow-y: visible; padding-top: 20px; display: flex; flex-direction: column; height: auto; min-height: 850px; }
+    .main-content::before { filter: blur(15px); }
+    
+    /* Mobilde sahanın sıfırlanmasını/kaybolmasını engellemek için kesin yükseklikler */
+    .export-container { padding: 15px; border-radius: 12px; height: 800px; max-width: 100%; width: 100%; display: flex; flex-direction: column; }
+    .pitch-container { flex: 1; min-height: 600px; } /* Sahanın mobilde görünmesini garanti eder */
+    .match-header h1 { font-size: 1.1rem; }
+}
+
+@media (max-width: 600px) {
+    .teams-container { flex-direction: column; overflow-x: hidden; overflow-y: visible;}
+    .team-panel { flex: none; width: 100%; }
+    .export-container { height: 700px; padding: 10px;}
+    .pitch-container { min-height: 500px; padding: 5px; }
+    
+    /* Mobilde oyuncu daireleri ve isimleri biraz küçülür */
+    .slot .player::before, .pitch > .player.on-pitch-free::before { width: 36px !important; height: 36px !important; border-width: 2px !important;}
+    .slot .player span, .pitch > .player.on-pitch-free span { font-size: 0.55rem !important; padding: 2px 4px !important; max-width: 60px !important; }
+}

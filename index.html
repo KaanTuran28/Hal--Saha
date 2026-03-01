@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Halı Saha Taktik Odası Demo</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/scroll-behaviour.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-headset"></i>
+            <h2>Taktik Odası</h2>
+        </div>
+        
+        <div class="global-controls">
+            <button id="exportPdfBtn" class="btn-primary">
+                <i class="fa-solid fa-file-pdf"></i> Taktik Formunu İndir
+            </button>
+            <p class="mobile-hint">* Mobilde sürüklemek için oyuncuya 0.2sn basılı tutun.</p>
+        </div>
+
+        <div class="teams-container">
+            <div class="team-panel home-panel">
+                <h3><i class="fa-solid fa-house"></i> Ev Sahibi (Mavi)</h3>
+                <div class="input-group">
+                    <input type="text" id="homeTeamNameInput" placeholder="Takım İsmi">
+                    <input type="text" id="homeManagerInput" placeholder="T. Direktör">
+                </div>
+                <div class="input-group">
+                    <select id="homeFormationSelect">
+                        <option value="2-3-1">2-3-1 (Dengeli)</option>
+                        <option value="3-2-1">3-2-1 (Defansif)</option>
+                        <option value="2-2-2">2-2-2 (Hücumcu)</option>
+                        <option value="3-1-2">3-1-2 (Kontra)</option>
+                        <option value="1-3-2">1-3-2 (Tam Baskı)</option>
+                        <option value="2-1-3">2-1-3 (Geniş Alan)</option>
+                    </select>
+                </div>
+                <div class="input-group add-player-group">
+                    <input type="text" id="newHomePlayerName" placeholder="Mavi Oyuncu Ekle">
+                    <button id="addHomePlayerBtn"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="player-pool" id="playerPoolHome"></div>
+            </div>
+
+            <div class="divider">VS</div>
+
+            <div class="team-panel away-panel">
+                <h3><i class="fa-solid fa-plane"></i> Deplasman (Kırmızı)</h3>
+                <div class="input-group">
+                    <input type="text" id="awayTeamNameInput" placeholder="Takım İsmi">
+                    <input type="text" id="awayManagerInput" placeholder="T. Direktör">
+                </div>
+                <div class="input-group">
+                    <select id="awayFormationSelect">
+                        <option value="2-3-1">2-3-1 (Dengeli)</option>
+                        <option value="3-2-1">3-2-1 (Defansif)</option>
+                        <option value="2-2-2">2-2-2 (Hücumcu)</option>
+                        <option value="3-1-2">3-1-2 (Kontra)</option>
+                        <option value="1-3-2">1-3-2 (Tam Baskı)</option>
+                        <option value="2-1-3">2-1-3 (Geniş Alan)</option>
+                    </select>
+                </div>
+                <div class="input-group add-player-group">
+                    <input type="text" id="newAwayPlayerName" placeholder="Kırmızı Oyuncu Ekle">
+                    <button id="addAwayPlayerBtn"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="player-pool" id="playerPoolAway"></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="export-area" class="export-container">
+            <div class="match-header">
+                <div class="header-team home">
+                    <h1 id="displayHomeTeam">EV SAHİBİ</h1>
+                    <p>T. Direktör: <span id="displayHomeManager">-</span></p>
+                </div>
+                <div class="vs-label">VS</div>
+                <div class="header-team away">
+                    <h1 id="displayAwayTeam">DEPLASMAN</h1>
+                    <p>T. Direktör: <span id="displayAwayManager">-</span></p>
+                </div>
+            </div>
+
+            <div class="pitch-container">
+                <div class="pitch" id="pitch">
+                    <div class="goal goal-top"></div>
+                    <div class="goal goal-bottom"></div>
+                    <div class="pitch-lines">
+                        <div class="box-top"><div class="penalty-arc"></div></div>
+                        <div class="box-bottom"><div class="penalty-arc"></div></div>
+                        <div class="center-line"></div>
+                        <div class="center-circle"><div class="center-spot"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
