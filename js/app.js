@@ -1,6 +1,6 @@
 // --- Mobil Dokunmatik Ekran Desteği ---
 MobileDragDrop.polyfill({
-    holdToDrag: 200, // Mobilde sürüklemek için oyuncuya 0.2 sn basılı tut
+    holdToDrag: 200, 
     dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
 });
 window.addEventListener('touchmove', function() {}, {passive: false});
@@ -47,15 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultAwayPlayers.forEach(name => createPlayerElement(name, 'away'));
     }
 
-    // OYUNCU OLUŞTURMA (CSS yapısına tam uyumlu hale getirildi)
     function createPlayerElement(name, team) {
         const playerDiv = document.createElement('div');
         playerDiv.className = `player ${team}-player`;
         playerDiv.draggable = true;
         playerDiv.id = `player_${playerIdCounter++}`;
         playerDiv.dataset.team = team; 
+        playerDiv.dataset.playerName = name;
         
-        // CSS ile eşleşmesi için span kullanıyoruz
         const nameSpan = document.createElement('span');
         nameSpan.textContent = name;
         playerDiv.appendChild(nameSpan);
@@ -81,10 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const pitchSlots = elements.pitch.querySelectorAll(`.slot-${team} .player`);
         const pool = team === 'home' ? elements.poolHome : elements.poolAway;
         
-        // Sahadaki oyuncuyu kulübeye temizleyerek yolla
         pitchSlots.forEach(p => { 
-            p.classList.remove('on-pitch-free'); 
-            p.style.cssText = ''; 
+            restorePlayerForPool(p);
             pool.appendChild(p); 
         });
 
@@ -102,14 +99,85 @@ document.addEventListener('DOMContentLoaded', () => {
             slot.addEventListener('dragleave', handleDragLeave);
             slot.addEventListener('drop', handleDropToSlot);
             
+            // ==========================================
+            // YENİ: TIKLAYARAK YEDEKLERDEN SEÇİM EKRANI (MODAL)
+            // ==========================================
+            slot.addEventListener('click', (e) => {
+                if (e.target.closest('.player')) return; // Slot doluyken tıklanırsa işlem yapma
+                if (slot.children.length > 0) return;
+                
+                openPlayerSelectionModal(team, slot);
+            });
+
             elements.pitch.appendChild(slot);
         });
+    }
+
+    function openPlayerSelectionModal(team, slot) {
+        const pool = team === 'home' ? elements.poolHome : elements.poolAway;
+        const benchPlayers = Array.from(pool.querySelectorAll('.player'));
+
+        if (benchPlayers.length === 0) {
+            alert('Yedek kulübesinde eklenecek oyuncu bulunmuyor!');
+            return;
+        }
+
+        // Modal Arka Planı
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+        // Modal Kutusu
+        const content = document.createElement('div');
+        content.className = 'modal-content';
+
+        const title = document.createElement('h3');
+        title.innerHTML = team === 'home' ? '<i class="fa-solid fa-house" style="color:#38bdf8;"></i> Mavi Takımdan Seç' : '<i class="fa-solid fa-plane" style="color:#ef4444;"></i> Kırmızı Takımdan Seç';
+
+        // Oyuncu Listesi (Dropdown)
+        const select = document.createElement('select');
+        benchPlayers.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.dataset.playerName;
+            select.appendChild(opt);
+        });
+
+        // Butonlar
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'modal-buttons';
+
+        const btnCancel = document.createElement('button');
+        btnCancel.className = 'btn-cancel';
+        btnCancel.textContent = 'İptal';
+        btnCancel.onclick = () => overlay.remove();
+
+        const btnConfirm = document.createElement('button');
+        btnConfirm.className = 'btn-confirm';
+        btnConfirm.textContent = 'Sahaya Al';
+        btnConfirm.onclick = () => {
+            const selectedPlayerId = select.value;
+            const playerEl = document.getElementById(selectedPlayerId);
+            if (playerEl) {
+                structurePlayerForPitch(playerEl, false);
+                slot.appendChild(playerEl);
+            }
+            overlay.remove();
+        };
+
+        btnContainer.appendChild(btnCancel);
+        btnContainer.appendChild(btnConfirm);
+
+        content.appendChild(title);
+        content.appendChild(select);
+        content.appendChild(btnContainer);
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
     }
 
     function handleDragStart(e) {
         if(e.target.classList.contains('delete-btn')) { e.preventDefault(); return; }
         e.dataTransfer.setData('text/plain', e.target.id);
-        e.dataTransfer.setData('team', e.target.dataset.team); 
     }
 
     function handleDragEnter(e) {
@@ -121,17 +189,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over-home', 'drag-over-away'); }
 
-    // SLOTA BIRAKMA
+    // SLOTA SÜRÜKLEYİP BIRAKMA
     function handleDropToSlot(e) {
         e.preventDefault(); e.stopPropagation();
         const slot = e.currentTarget;
         slot.classList.remove('drag-over-home', 'drag-over-away');
         
         const playerId = e.dataTransfer.getData('text/plain');
-        const playerTeam = e.dataTransfer.getData('team');
         const playerEl = document.getElementById(playerId);
-        
         if (!playerEl) return;
+
+        const playerTeam = playerEl.dataset.team; 
 
         const isSlotHome = slot.classList.contains('slot-home');
         const isSlotAway = slot.classList.contains('slot-away');
@@ -141,8 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (slot.children.length === 0) {
-            playerEl.classList.remove('on-pitch-free'); // Serbest moddaysa iptal et
-            playerEl.style.cssText = ''; // Koordinatları sıfırla (slot otomatik hizalar)
+            structurePlayerForPitch(playerEl, false);
             slot.appendChild(playerEl);
         }
     }
@@ -159,20 +226,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!playerEl) return;
 
             const rect = elements.pitch.getBoundingClientRect();
-            
-            let clientX = e.clientX;
-            let clientY = e.clientY;
+            let clientX = e.clientX; let clientY = e.clientY;
             
             if(e.changedTouches && e.changedTouches.length > 0) {
-                clientX = e.changedTouches[0].clientX;
-                clientY = e.changedTouches[0].clientY;
+                clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY;
             }
 
             let x = Math.max(0, Math.min(clientX - rect.left, rect.width));
             let y = Math.max(0, Math.min(clientY - rect.top, rect.height));
 
-            playerEl.parentNode.removeChild(playerEl);
-            playerEl.classList.add('on-pitch-free');
+            structurePlayerForPitch(playerEl, true);
             playerEl.style.position = 'absolute';
             playerEl.style.left = `${(x / rect.width) * 100}%`;
             playerEl.style.top = `${(y / rect.height) * 100}%`;
@@ -182,25 +245,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // KULÜBEYE GERİ ALMA
+    // ==========================================
+    // KULÜBEYE GERİ ALMA (HATA KESİN ÇÖZÜLDÜ)
+    // ==========================================
     [elements.poolHome, elements.poolAway].forEach(pool => {
         pool.addEventListener('dragover', (e) => e.preventDefault());
         pool.addEventListener('drop', (e) => {
             e.preventDefault();
             const playerId = e.dataTransfer.getData('text/plain');
-            const playerTeam = e.dataTransfer.getData('team');
             const playerEl = document.getElementById(playerId);
             if(!playerEl) return;
 
+            // Takım verisi her zaman güvence altında (DOM üzerinden okunur)
+            const playerTeam = playerEl.dataset.team; 
+
             if((playerTeam === 'home' && pool.id === 'playerPoolHome') || (playerTeam === 'away' && pool.id === 'playerPoolAway')) {
-                playerEl.classList.remove('on-pitch-free');
-                playerEl.style.cssText = '';
+                restorePlayerForPool(playerEl);
                 pool.appendChild(playerEl);
             } else {
                 alert("Oyuncu sadece kendi yedek kulübesine dönebilir.");
             }
         });
     });
+
+    // --- YAPISAL DÖNÜŞÜM FONKSİYONLARI ---
+    function structurePlayerForPitch(playerEl, isFree = false) {
+        const name = playerEl.dataset.playerName || 'Oyuncu';
+        playerEl.innerHTML = ''; 
+        
+        if (isFree) {
+            playerEl.classList.add('on-pitch-free');
+        } else {
+            playerEl.classList.remove('on-pitch-free');
+            playerEl.style.cssText = ''; 
+        }
+
+        const label = document.createElement('span');
+        label.textContent = name;
+        playerEl.appendChild(label);
+    }
+
+    function restorePlayerForPool(playerEl) {
+        const name = playerEl.dataset.playerName || 'Oyuncu';
+        playerEl.classList.remove('on-pitch-free');
+        playerEl.style.cssText = ''; 
+        playerEl.innerHTML = '';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = name;
+        playerEl.appendChild(nameSpan);
+
+        const deleteBtn = document.createElement('i');
+        deleteBtn.className = 'fa-solid fa-times delete-btn';
+        deleteBtn.title = 'Oyuncuyu Sil';
+        deleteBtn.onclick = function(e) { e.stopPropagation(); playerEl.remove(); };
+        playerEl.appendChild(deleteBtn);
+    }
 
     function setupEventListeners() {
         elements.formHome.addEventListener('change', (e) => renderTeamFormation('home', e.target.value));
@@ -224,9 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (name) { createPlayerElement(name, team); input.value = ''; }
     }
 
-    // ==========================================
-    // PDF ÇIKTISI ALMA BÖLÜMÜ (HATASIZ KESİN ÇÖZÜM)
-    // ==========================================
     function exportTacticsPDF() {
         const element = document.getElementById('export-area');
         const pitch = document.getElementById('pitch');
@@ -234,14 +331,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const hName = elements.inHomeTeam.value || 'EvSahibi';
         const aName = elements.inAwayTeam.value || 'Deplasman';
         
-        // 1. PDF MOTORU İÇİN BOYUTLARI SABİTLE (BUG FİX)
         const pitchRect = pitch.getBoundingClientRect();
         pitch.style.width = pitchRect.width + 'px';
         pitch.style.height = pitchRect.height + 'px';
         element.style.height = 'auto'; 
         element.style.maxWidth = '100%';
 
-        // 2. Buton efekti (İndiriliyor animasyonu)
         const btn = elements.exportPdfBtn;
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> İndiriliyor...';
@@ -251,16 +346,10 @@ document.addEventListener('DOMContentLoaded', () => {
             margin: 5,
             filename: `${hName}-vs-${aName}-Taktik.pdf`,
             image: { type: 'jpeg', quality: 1 },
-            html2canvas: { 
-                scale: 2, 
-                useCORS: true, 
-                backgroundColor: '#080a10', // Arka planla aynı renk
-                scrollY: 0 
-            },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#080a10', scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 3. Çıktıyı al ve boyutları esnek (responsive) haline geri getir
         html2pdf().set(opt).from(element).save().then(() => {
             pitch.style.width = '';
             pitch.style.height = '';
