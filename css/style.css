@@ -1,5 +1,5 @@
 /* ============================================================
-   HALI SAHA SAVAŞ ODASI PRO - TAM EKRAN VE MOBİL UYUMLU (SON)
+   HALI SAHA SAVAŞ ODASI PRO - KUSURSUZ MOBİL UYUMLU (SON SÜRÜM)
    ============================================================ */
 :root {
     --bg-dark: #080a10; 
@@ -18,6 +18,8 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+/* Masaüstünde tam ekran kilitli, mobilde aşağı kaydırılabilir olur (Media Query ile ezilir) */
 body { 
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
     background-color: var(--bg-dark); 
@@ -62,8 +64,6 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
 
 /* --- OYUNCU HAVUZU (YEDEK KULÜBESİ) --- */
 .player-pool { min-height: 90px; max-height: 160px; background-color: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-
-/* Kulübedeki oyuncular yatay dikdörtgen kalsın */
 .player-pool .player { padding: 8px 12px; border-radius: 6px; cursor: grab; font-size: 0.9rem; font-weight: 600; display: flex; flex-direction: row !important; align-items: center; gap: 10px; border: 1px solid #2a3441; color: white; background-color: #111827; position: relative; touch-action: none; }
 .player-pool .player::before { font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 1rem; }
 .player-pool .player.home-player { border-left: 3px solid var(--home-color); } 
@@ -118,7 +118,7 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
     overflow: visible !important; cursor: grab !important; z-index: 5 !important; transition: transform 0.2s !important;
 }
 
-/* KIRMIZI TAKIM (DEPLASMAN) İÇİN İSİMLERİ ÜSTE ALMA KODU */
+/* KIRMIZI TAKIM (DEPLASMAN) İÇİN İSİMLERİ ÜSTE ALMA */
 .slot .player.away-player, .pitch > .player.on-pitch-free.away-player { flex-direction: column-reverse !important; }
 .slot .player:hover, .pitch > .player.on-pitch-free:hover { transform: scale(1.1) !important; }
 .pitch > .player.on-pitch-free { transform: translate(-50%, -50%); position: absolute; }
@@ -160,27 +160,79 @@ input:focus, select:focus { border-color: rgba(255,255,255,0.3); background-colo
 .btn-confirm { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; }
 .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3); }
 
-/* ================= MOBİL UYUMLULUK KUSURSUZ (MEDIA QUERIES) ================= */
+
+/* =====================================================================
+   MOBİL UYUMLULUK: KUSURSUZ TAŞMA VE KAYDIRMA (SCROLL) DÜZELTMESİ
+   ===================================================================== */
 @media (max-width: 950px) {
-    body { flex-direction: column; overflow-y: auto; overflow-x: hidden; height: 100dvh; }
+    /* 1. Body artık sabit (hidden) değil, dikey olarak kaydırılabilir (auto) */
+    body { 
+        flex-direction: column; 
+        height: auto !important; 
+        min-height: 100vh; 
+        overflow-y: auto !important; 
+        overflow-x: hidden; 
+    }
     
-    .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--border-color); padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); flex-shrink: 0; }
+    /* 2. Sol menü tepeye gelir, yüksekliğini kendi ayarlar */
+    .sidebar { 
+        width: 100%; 
+        border-right: none; 
+        border-bottom: 2px solid var(--border-color); 
+        padding: 15px; 
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3); 
+        flex-shrink: 0; 
+    }
+    
     .mobile-hint { display: block; } 
     .teams-container { flex-direction: row; gap: 10px; overflow-y: hidden; overflow-x: auto; padding-bottom: 5px;}
-    .team-panel { flex: 0 0 280px; padding: 10px; }
+    .team-panel { flex: 0 0 300px; padding: 10px; }
     .divider { display: none; }
     
-    .main-content { padding: 10px; overflow-y: visible; padding-top: 20px; display: block; height: auto;}
+    /* 3. Ana saha içeriği serbest bırakıldı, sıfırlanması (çökmesi) engellendi */
+    .main-content { 
+        display: flex; 
+        flex-direction: column; 
+        padding: 10px; 
+        padding-top: 20px; 
+        height: auto; 
+        min-height: 700px; 
+        overflow: visible;
+    }
+    
     .main-content::before { filter: blur(15px); }
     
-    .export-container { padding: 15px; border-radius: 12px; height: 700px; max-width: 100%; width: 100%; }
+    /* 4. Saha konteynerine kesin yükseklik verildi ki mobilde alan kaybolmasın */
+    .export-container { 
+        padding: 15px; 
+        border-radius: 12px; 
+        height: 750px; /* Kesin yükseklik */
+        max-width: 100%; 
+        width: 100%; 
+        display: flex; 
+        flex-direction: column; 
+    }
+    
+    /* İç saha alanının konteyneri kaplaması zorlandı */
+    .pitch-container { 
+        flex: 1; 
+        min-height: 550px; 
+    }
+    
     .match-header h1 { font-size: 1.1rem; }
 }
 
+/* Çok Küçük Ekranlar (Telefonlar) */
 @media (max-width: 600px) {
     .teams-container { flex-direction: column; overflow-x: hidden; overflow-y: visible;}
     .team-panel { flex: none; width: 100%; }
-    .export-container { height: 650px; }
-    .slot .player::before, .pitch > .player.on-pitch-free::before { width: 36px !important; height: 36px !important; border-width: 2px !important;}
+    
+    .export-container { height: 700px; padding: 10px; }
+    .pitch-container { min-height: 500px; padding: 5px; }
+    
+    /* Mobilde oyuncular daha küçük olur (Sığması için) */
+    .slot { width: 45px; height: 45px; }
+    .slot::after { width: 10px; height: 10px; }
+    .slot .player::before, .pitch > .player.on-pitch-free::before { width: 34px !important; height: 34px !important; border-width: 2px !important;}
     .slot .player span, .pitch > .player.on-pitch-free span { font-size: 0.55rem !important; padding: 2px 4px !important; max-width: 60px !important; }
 }
